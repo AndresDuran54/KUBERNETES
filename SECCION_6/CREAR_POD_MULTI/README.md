@@ -24,4 +24,4 @@ El comando `kubectl logs -f multi -c frontal` se utiliza en Kubernetes para ver 
 
 - `-c frontal`: Esta opción, o `--container`, indica que quieres ver los registros del contenedor llamado "frontal" dentro del pod. En los pods con múltiples contenedores, esta opción te permite seleccionar el contenedor del cual deseas ver los registros.
 
-En resumen, el comando `kubectl logs -f multi -c frontal` se utiliza para seguir en tiempo real los registros generados por el contenedor "frontal" dentro del pod llamado "multi" en Kubernetes. Esto puede ser útil para
+En resumen, el comando `kubectl logs -f multi -c frontal` se utiliza para seguir en tiempo real los registros generados por el contenedor "frontal" dentro del pod llamado "multi" en Kubernetes

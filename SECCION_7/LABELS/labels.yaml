@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: tomcat2
+  labels:
+    estado: "Desarrollo" 
+spec:
+  containers:
+  - name: tomcat
+    image: tomcat
+    resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"

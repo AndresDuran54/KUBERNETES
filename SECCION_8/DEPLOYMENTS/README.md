@@ -100,7 +100,7 @@ El escalado es una característica importante en Kubernetes que te permite adapt
 El comando `kubectl scale deploy -l app=nginx --replicas=2` se utiliza en Kubernetes para escalar despliegues que tengan la etiqueta "app=nginx". En este caso, se está escalando todos los despliegues que coincidan con esta etiqueta para tener un total de 2 réplicas cada uno.
 
 **Descripción:**
-****
+
 - `kubectl scale deploy -l app=nginx`: Esta parte del comando indica que deseas escalar todos los despliegues que tengan la etiqueta "app=nginx".
 
 - `--replicas=2`: Con esta parte del comando, estás especificando el nuevo número deseado de réplicas para cada uno de los despliegues seleccionados. En este caso, se están configurando 2 réplicas para cada despliegue con la etiqueta "app=nginx".

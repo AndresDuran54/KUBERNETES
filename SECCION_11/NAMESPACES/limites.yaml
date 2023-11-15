@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: recursos
+spec:
+  limits:
+    # es el límite predeterminado para la cantidad de CPU/Memoria para el contenedor, si no especifica su propio valor
+  - default:
+      memory: 512Mi
+      cpu: 1
+    # cuánta CPU/Memoria se le dará al Contenedor, si no especifica su propio valor
+    defaultRequest:
+      memory: 256Mi
+      cpu: "0.5"
+    # es el límite máximo de cantidad de CPU/memoria que el contenedor puede solicitar
+    max:
+      memory: 1Gi
+      cpu: 4
+    # es la cantidad límite mínima de CPU/Memoria que el contenedor puede solicitar. Es decir. no puede establecer su propio límite menor que eso
+    min:
+      memory: 128Mi
+      cpu: "0.5"
+    type: Container

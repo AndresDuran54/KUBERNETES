@@ -1,0 +1,25 @@
+apiVersion: apps/v1 # i se Usa apps/v1beta2 para versiones anteriores a 1.9.0
+kind: Deployment
+metadata:
+  name: nginx-d
+  labels:
+    estado: "1"
+spec:
+  selector:   #permite seleccionar un conjunto de objetos que cumplan las condicione
+    matchLabels:
+      app: nginx
+  replicas: 10 # indica al controlador que ejecute 10 pods
+  strategy:
+     type: Recreate
+  # Establece que los nuevos pods deben estar "listos" durante al menos 30 segundos antes de continuar con la actualización
+  minReadySeconds: 2
+  template:   # Plantilla que define los containers
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.17.8
+        ports:
+        - containerPort: 80

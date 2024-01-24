@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod1
+# Especificación del comportamiento deseado del pod
+spec:
+  # Lista de contenedores pertenecientes al pod. Actualmente no se pueden agregar ni eliminar contenedores. 
+  # Debe haber al menos un contenedor en un Pod. No se puede actualizar.
+  containers:
+    # Nombre del contenedor especificado como DNS_LABEL. Cada contenedor de un pod 
+    # debe tener un nombre único (DNS_LABEL). No se puede actualizar.
+    - name: test-container
+      # Nombre de la imagen del contenedor.
+      image: ubuntu
+      # Matriz de puntos de entrada. No ejecutado dentro de un shell.
+      command: [ "/bin/sh", "-c", "sleep 1000000" ]
+      # Lista de variables de entorno para configurar en el contenedor. No se puede actualizar. ([]EnvVar)
+      # EnvVar representa una variable de entorno presente en un contenedor.
+      env:
+          # Nombre de la variable de entorno. Debe ser un C_IDENTIFIER.
+        - name: DATOS
+          # Fuente del valor de la variable de entorno. No se puede utilizar si el valor no está vacío. (EnvVarSource)
+          # EnvVarSource representa una fuente para el valor de una EnvVar.
+          valueFrom:
+            # Selecciona una clave de un secreto en el espacio de nombres del pod.
+            # (SecretKeySelector)
+            secretKeyRef:
+              # Nombre del ConfigMap o Secret referente.
+              name: datos
+              # La clave del secreto para seleccionar. Debe ser una clave secreta válida.
+              key: datos.txt
+      # Recursos requeridos por este contenedor. No se puede actualizar.
+      resources:
+        # Los límites describen la cantidad máxima de recursos informáticos permitidos.
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+  # Política de reinicio de todos los contenedores del pod
+  restartPolicy: Never

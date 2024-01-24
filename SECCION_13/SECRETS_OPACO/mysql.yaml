@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+# Un controlador de Deployment proporciona 
+# actualizaciones declarativas para los Pods y los ReplicaSets.
+# Cuando describes el estado deseado en un objeto Deployment, el
+# controlador del Deployment se encarga de cambiar el estado actual
+# al estado deseado de forma controlada. Puedes definir Deployments
+# para crear nuevos ReplicaSets, o eliminar Deployments existentes 
+# y adoptar todos sus recursos con nuevos Deployments.
+kind: Deployment
+metadata:
+  name: mysql-deploy
+  labels:
+    app: mysql
+    type: db
+spec:
+  replicas: 1
+  # Selector de etiquetas para pods. Los ReplicaSets existentes cuyos pods sean seleccionados
+  # por este serán los afectados por esta implementación. Debe coincidir con las etiquetas de
+  # la plantilla del pod.
+  selector:
+    # Un selector de etiquetas es una consulta de etiquetas sobre un conjunto de recursos.
+    # El resultado de matchLabels y matchExpressions se aplica mediante AND. Un selector de
+    # etiquetas vacío coincide con todos los objetos. Un selector de etiquetas nulas no coincide
+    # con ningún objeto.
+    matchLabels:
+      app: mysql
+      type: db
+  # La plantilla describe los pods que se crearán. 
+  # El único valor permitido para template.spec.restartPolicy es 'Always'.
+  template:
+    # Describe los datos que debe tener un pod cuando se crea a partir de una plantilla
+    metadata:
+      labels:
+        app: mysql
+        type: db
+    # Especificación del comportamiento deseado del pod.
+    spec:
+      # Lista de contenedores pertenecientes al pod. Actualmente no se pueden agregar
+      # ni eliminar contenedores. Debe haber al menos un contenedor en un Pod. No se 
+      # puede actualizar.
+      containers:
+        # Nombre del contenedor especificado como DNS_LABEL. Cada contenedor de un pod debe tener
+        # un nombre único (DNS_LABEL). No se puede actualizar.
+        - name: mysql57
+          # Nombre de la imagen del contenedor.
+          image: mysql:5.7
+          ports:
+            # Lista de puertos a exponer desde el contenedor. No especificar un puerto aquí NO evita que ese puerto
+            # quede expuesto. Cualquier puerto que esté escuchando en la dirección predeterminada "0.0.0.0" dentro 
+            # de un contenedor será accesible desde la red. Modificar esta matriz con un parche de combinación 
+            # estratégico puede dañar los datos.
+            - containerPort: 3306
+            # Si se especifica, debe ser IANA_SVC_NAME y único dentro del pod. Cada puerto con nombre en un pod debe 
+            # tener un nombre único. Nombre del puerto al que pueden hacer referencia los servicios.
+              name: db-port
+          # Lista de variables de entorno para configurar en el contenedor. No se puede actualizar. ([]EnvVar)
+          # EnvVar representa una variable de entorno presente en un contenedor.
+          env:
+            # Nombre de la variable de entorno. Debe ser un C_IDENTIFIER.
+            - name: MYSQL_ROOT_PASSWORD
+              # Fuente del valor de la variable de entorno. No se puede utilizar si el valor no está vacío. (EnvVarSource)
+              # EnvVarSource representa una fuente para el valor de una EnvVar.
+              valueFrom:
+                # Selecciona una clave de un secreto en el espacio de nombres del pod.
+                # (SecretKeySelector)
+                secretKeyRef:
+                  # Nombre del ConfigMap o Secret referente.
+                  name: passwords
+                  # La clave del secreto para seleccionar. Debe ser una clave secreta válida.
+                  key: pass-root
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: passwords
+                  key: pass-usu
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: datos-mysql-env
+                  key: MYSQL_USER
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: datos-mysql-env
+                  key: MYSQL_DATABASE
+          # Recursos requeridos por este contenedor. No se puede actualizar.
+          resources:
+            # Los límites describen la cantidad máxima de recursos informáticos permitidos.
+            limits:
+              memory: "128Mi"
+              cpu: "500m"

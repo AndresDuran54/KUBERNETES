@@ -1,0 +1,15 @@
+apiVersion: v1
+# Los datos contienen los datos de configuración. Cada clave debe constar de caracteres alfanuméricos,
+# '-', '_' o '.'. Los valores con secuencias de bytes que no sean UTF-8 deben utilizar el campo BinaryData.
+# Las claves almacenadas en Datos no deben superponerse con las claves en el campo BinaryData; esto se aplica
+# durante el proceso de validación.
+data:
+  MYSQL_DATABASE: kubernetes
+  MYSQL_USER: usudb
+# ConfigMap contiene datos de configuración para que los consuman los pods.
+kind: ConfigMap
+# ObjectMeta son metadatos que todos los recursos persistentes deben tener, 
+# que incluyen todos los objetos que los usuarios deben crear.
+metadata:
+  name: datos-mysql-env
+  namespace: ducco-services

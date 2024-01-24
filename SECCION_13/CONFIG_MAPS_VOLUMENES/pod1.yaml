@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ducco-pod-1
+# Especificación del comportamiento deseado del pod
+spec:
+  # Lista de contenedores pertenecientes al pod. Actualmente no se pueden agregar ni eliminar contenedores. 
+  # Debe haber al menos un contenedor en un Pod. No se puede actualizar.
+  containers:
+    # Nombre del contenedor especificado como DNS_LABEL. Cada contenedor de un pod 
+    # debe tener un nombre único (DNS_LABEL). No se puede actualizar.
+    - name: ducco-contenedor-1
+      # Nombre de la imagen del contenedor.
+      image: k8s.gcr.io/busybox
+      # Matriz de puntos de entrada. No ejecutado dentro de un shell.
+      command: [ "/bin/sh", "-c", "sleep 1000000" ]
+      # Volúmenes de pod para montar en el sistema de archivos del contenedor.
+      # No se puede actualizar. VolumeMount describe un montaje de un volumen dentro de un contenedor.
+      volumeMounts:
+        # Debe coincidir con el nombre de un volumen.
+      - name: volumen-config-map
+        # Ruta dentro del contenedor en la que se debe montar el volumen. No debe contener ':'.
+        mountPath: /etc/config-map
+      # Recursos requeridos por este contenedor. No se puede actualizar.
+      resources:
+        # Los límites describen la cantidad máxima de recursos informáticos permitidos.
+        limits:
+          memory: "128Mi"
+          cpu: "500m"
+  volumes:
+    # El volumen representa un volumen con nombre en un pod al que puede acceder cualquier contenedor del pod.
+    - name: volumen-config-map
+    # ConfigMap representa un configMap que debería llenar este volumen
+      configMap:
+        # Nombre de referencia
+        name: config-volumen
+  # Política de reinicio para todos los contenedores dentro del pod.
+  restartPolicy: Never

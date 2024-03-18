@@ -1,0 +1,53 @@
+apiVersion: v1
+# La configuración contiene la información necesaria para construir la conexión a 
+# clústeres remotos de Kubernetes como un usuario determinado.
+kind: Pod
+# Metadatos del objeto estándar
+metadata:
+  # Una cadena que identifica de forma única este objeto dentro del espacio de nombres actuaL. 
+  # Este valor se utiliza en la ruta al recuperar un objeto individual.
+  name: apache1
+# Especificación del comportamiento deseado del pod.
+spec:
+  # Si se especifican, las restricciones de programación del pod.
+  # La afinidad es un grupo de reglas de programación de afinidad.
+  affinity:
+    # La afinidad de nodo es un grupo de reglas de programación de afinidad de nodo.
+    nodeAffinity:
+      # Si los requisitos de afinidad especificados por este campo no se cumplen en el momento de la 
+      # programación, el pod no se programará en el nodo. Si los requisitos de afinidad especificados
+      # por este campo dejan de cumplirse en algún momento durante la ejecución del pod (por ejemplo,
+      # debido a una actualización), el sistema puede intentar o no eventualmente evacuar el pod de su
+      # nodo.
+      requiredDuringSchedulingIgnoredDuringExecution:
+        # Un selector de nodo representa la unión de los resultados de una o más consultas de 
+        # etiquetas sobre un conjunto de nodos; es decir, representa el OR de los selectores 
+        # representados por los términos de selector de nodo.
+        nodeSelectorTerms:
+          # Una lista de requisitos de selector de nodo por etiquetas del nodo.
+          - matchExpressions:
+              # La clave de etiqueta a la que se aplica el selector.
+              - key: team
+              # Representa la relación de una clave con un conjunto de valores. 
+              # Los operadores válidos son In, NotIn, Exists, DoesNotExist, Gt y Lt.
+                operator: In
+              # Una matriz de valores de cadena. Si el operador es In o NotIn, la matriz de valores
+              # debe ser no vacía. Si el operador es Exists o DoesNotExist, la matriz de valores debe
+              # estar vacía. Si el operador es Gt o Lt, la matriz de valores debe tener un solo 
+              # elemento, que se interpretará como un entero.  
+                values:
+                  - dev-web
+                  - dev-python
+  # Lista de contenedores pertenecientes al pod. Actualmente no se pueden agregar ni eliminar contenedores. 
+  # Debe haber al menos un contenedor en un Pod. No se puede actualizar.
+  containers:
+    # Nombre del contenedor especificado como DNS_LABEL. Cada contenedor de un pod 
+    # debe tener un nombre único (DNS_LABEL). No se puede actualizar.
+    - name: apache1
+      # Nombre de la imagen del contenedor.
+      image: httpd
+      # Recursos requeridos por este contenedor. No se puede actualizar.
+      resources:
+        limits:
+          memory: "128Mi"
+          cpu: "500m"

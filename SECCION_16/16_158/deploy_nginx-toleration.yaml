@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+# La implementación permite actualizaciones declarativas para Pods y ReplicaSets.
+kind: Deployment
+# Metadatos del objeto estándar.
+metadata:
+  # Una cadena que identifica de forma única este objeto dentro del espacio de nombres actuaL. 
+  # Este valor se utiliza en la ruta al recuperar un objeto individual.
+  name: nginx-d
+# Especificación del comportamiento deseado del Deployment.
+spec:
+  # Selector de etiquetas para pods. Los ReplicaSets existentes cuyos pods sean seleccionadas por esto 
+  # serán los afectados por esta implementación. Debe coincidir con las etiquetas de la plantilla
+  # del pod.
+  # LABEL SELECTOR: Un selector de etiquetas es una consulta de etiquetas sobre un conjunto de recursos.
+  # El resultado de matchLabels y matchExpressions se aplica mediante AND. Un selector de etiquetas vacío
+  # coincide con todos los objetos. Un selector de etiquetas nulas no coincide con ningún objeto.
+  selector:
+    # MATCH_LABELS: es un mapa de pares {clave,valor}. Una sola {clave, valor} en el mapa matchLabels es
+    # equivalente a un elemento de matchExpressions, cuyo campo clave es "clave", el operador es "In" y 
+    # la matriz de valores contiene solo "valor". Los requisitos están conectados con AND.
+    matchLabels:
+      app: nginx
+  replicas: 10
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.7.9
+        ports:
+        - containerPort: 80
+      resources:
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+      nodeSelector:
+        aplicacion: web
+      # El pod al que esta Tolerancia está adjunta tolera cualquier taint que coincida con 
+      # el triple <clave, valor, efecto> utilizando el operador de coincidencia
+      tolerations:
+      # Effect indica el efecto del taint a coincidir. Vacío significa coincidir con todos los efectos
+      # del taint. Cuando se especifica, los valores permitidos son NoSchedule, PreferNoSchedule y NoExecute.
+      - effect: NoSchedule
+      # Key es la clave del taint a la que se aplica la tolerancia. Vacío significa coincidir con todas las
+      # claves de taint. Si la clave está vacía, el operador debe ser Exists; esta combinación significa
+      # coincidir con todos los valores y todas las claves.
+        key: memoria
+      # Operator representa la relación de una clave con el valor. Los operadores válidos son Exists e Equal.
+      # El valor predeterminado es Equal. Exists es equivalente a un comodín para el valor, de modo que un
+      # pod puede tolerar todos los taints de una categoría particular.
+        operator: Equal
+      # Value es el valor del taint al que coincide la tolerancia. Si el operador es Exists, el valor debe
+      # estar vacío; de lo contrario, es simplemente una cadena regular.
+        value: grande
+      # TolerationSeconds representa el período de tiempo que la tolerancia (que debe ser de efecto NoExecute,
+      # de lo contrario, este campo se ignora) tolera el taint. De forma predeterminada, no está establecido, 
+      # lo que significa tolerar el taint para siempre (no desalojar). Los valores cero y negativos se tratarán
+      # como 0 (desalojar inmediatamente) por el sistema.
+        tolerationSeconds: 60
+

@@ -1,0 +1,71 @@
+apiVersion: v1
+# La configuración contiene la información necesaria para construir la conexión a 
+# clústeres remotos de Kubernetes como un usuario determinado.
+kind: Pod
+# Metadatos del objeto estándar
+metadata:
+  # Una cadena que identifica de forma única este objeto dentro del espacio de nombres actuaL. 
+  # Este valor se utiliza en la ruta al recuperar un objeto individual.
+  name: nginx
+  # Mapa de claves y valores de cadena que se pueden utilizar para organizar y categorizar
+  # (alcance y selección) objetos. Puede coincidir con selectores de controladores de replicación
+  # y servicios.
+  labels:
+    zone: prod
+    version: v1
+# Especificación del comportamiento deseado del pod.
+spec:
+  # Lista de contenedores pertenecientes al pod. Actualmente no se pueden agregar ni eliminar contenedores. 
+  # Debe haber al menos un contenedor en un Pod. No se puede actualizar.
+  containers:
+  # Nombre del contenedor especificado como DNS_LABEL. Cada contenedor de un pod 
+  # debe tener un nombre único (DNS_LABEL). No se puede actualizar.
+    - name: example
+      # Nombre de la imagen del contenedor.
+      image: fedora:latest
+      # Array de puntos de entrada. No se ejecuta dentro de un shell. Se utiliza ENTRYPOINT de la imagen
+      # del contenedor si no se proporciona esto. Las referencias a variables $(VAR_NAME) se expanden
+      # utilizando el entorno del contenedor. Si una variable no puede resolverse, la referencia en la
+      # cadena de entrada no cambiará. Los dobles $$ se reducen a un solo $, lo que permite escapar
+      # la sintaxis $(VAR_NAME): es decir, "$$(VAR_NAME)" producirá la cadena literal "$(VAR_NAME)".
+      # Las referencias escapadas nunca se expandirán, independientemente de si la variable existe o
+      # no. No puede ser actualizado.
+      command:
+        - sleep
+        - inf
+      # Recursos requeridos por este contenedor. No se puede actualizar.
+      resources:
+        # Limits describe la cantidad máxima de recursos informáticos permitidos.
+        limits:
+          hugepages-2Mi: 100Mi
+          hugepages-1Gi: 2Gi
+          memory: 128Mi
+          cpu: "1"
+        # Requests describe la cantidad mínima de recursos informáticos requeridos. Si se omite Requests
+        # para un contenedor, por defecto es igual a Limits si se especifica explícitamente, de lo 
+        # contrario es igual a un valor definido por la implementación. Requests no puede exceder a Limits.
+        requests:
+          memory: 128Mi
+      # Volúmenes de pod para montar en el sistema de archivos del contenedor. No se puede actualizar.
+      volumeMounts:
+        # Ruta dentro del contenedor en la que se debe montar el volumen. No debe contener ':'.
+        - mountPath: /hugepages-2Mi
+        # Debe coincidir con el nombre de un volumen.
+          name: hugepage-2mi
+        # Ruta dentro del contenedor en la que se debe montar el volumen. No debe contener ':'.
+        - mountPath: /hugepages-1Gi
+        # Debe coincidir con el nombre de un volumen.
+          name: hugepage-1gi
+  # Lista de volúmenes que pueden montar los contenedores pertenecientes al pod.
+  volumes:
+    # Nombre del volumen. Debe ser DNS_LABEL y único dentro del pod.
+    - name: hugepage-2mi
+    # Representa un directorio temporal que comparte la vida útil de un pod.
+      emptyDir:
+    # Representa qué tipo de medio de almacenamiento debe respaldar este directorio. El valor
+    # predeterminado es "", lo que significa utilizar el medio predeterminado del nodo.
+    # Debe ser una cadena vacía (predeterminada) o Memoria.
+        medium: HugePages-2Mi
+    - name: hugepage-1gi
+      emptyDir:
+        medium: HugePages-1Gi

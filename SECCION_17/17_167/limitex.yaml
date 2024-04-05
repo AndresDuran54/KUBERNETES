@@ -1,0 +1,35 @@
+apiVersion: v1
+# LimitRange establece límites de uso de recursos para cada tipo de recurso en un Namespace.
+kind: LimitRange
+# Cada tipo de objeto DEBE tener los siguientes metadatos en un campo de objeto anidado llamado "metadatos":
+metadata:
+  # Una cadena que identifica de forma única este objeto dentro del espacio de nombres actual
+  name: recursos
+# La especificación define los límites impuestos
+spec:
+  # Límites es la lista de objetos LimitRangeItem que se aplican.
+  limits:
+  # Valor predeterminado del límite de requisitos de recursos por nombre de recurso si se omite 
+  # el límite de recursos.
+  - default:
+      memory: 512Mi
+      cpu: 1
+    # DefaultRequest es el valor predeterminado de solicitud de requisitos de recursos por nombre
+    # de recurso si se omite la solicitud de recursos.
+    defaultRequest:
+      memory: 256Mi
+      cpu: "0.5"
+    # Restricciones de uso máximo en este tipo por nombre de recurso.
+    max:
+      memory: 1Gi
+      cpu: 4
+    # Restricciones de uso mínimo en este tipo por nombre de recurso.
+    min:
+      memory: 128Mi
+      cpu: "0.5"
+    # Tipo de recurso al que se aplica este límite.
+    type: Container
+    # Relación máxima de los recursos límite y los recusos de solicitud
+    maxLimitRequestRatio:
+      cpu: 2
+      memory: 2

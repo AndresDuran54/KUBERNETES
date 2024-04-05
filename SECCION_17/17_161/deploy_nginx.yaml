@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+# Un controlador de Deployment proporciona 
+# actualizaciones declarativas para los Pods y los ReplicaSets.
+# Cuando describes el estado deseado en un objeto Deployment, el
+# controlador del Deployment se encarga de cambiar el estado actual
+# al estado deseado de forma controlada. Puedes definir Deployments
+# para crear nuevos ReplicaSets, o eliminar Deployments existentes 
+# y adoptar todos sus recursos con nuevos Deployments.
+kind: Deployment
+metadata:
+  name: nginx-d
+  labels:
+    estado: "1"
+spec:
+  # Selector de etiquetas para pods. Los ReplicaSets existentes cuyos pods sean seleccionados
+  # por este serán los afectados por esta implementación. Debe coincidir con las etiquetas de
+  # la plantilla del pod.
+  selector:
+    # Un selector de etiquetas es una consulta de etiquetas sobre un conjunto de recursos.
+    # El resultado de matchLabels y matchExpressions se aplica mediante AND. Un selector de
+    # etiquetas vacío coincide con todos los objetos. Un selector de etiquetas nulas no coincide
+    # con ningún objeto.
+    matchLabels:
+      app: nginx
+  # Número de replicas
+  replicas: 5
+  # La plantilla describe los pods que se crearán. 
+  # El único valor permitido para template.spec.restartPolicy es 'Always'.
+  template:
+    # Describe los datos que debe tener un pod cuando se crea a partir de una plantilla
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      # Lista de contenedores pertenecientes al pod. Actualmente no se pueden agregar
+      # ni eliminar contenedores. Debe haber al menos un contenedor en un Pod. No se 
+      # puede actualizar.
+      containers:
+        # Nombre del contenedor especificado como DNS_LABEL. Cada contenedor de un pod debe tener
+        # un nombre único (DNS_LABEL). No se puede actualizar.
+      - name: nginx
+        # Nombre de la imagen del contenedor.
+        image: nginx:1.7.9
+        # Lista de puertos a exponer desde el contenedor. No especificar un puerto aquí NO evita que ese puerto
+        # quede expuesto. Cualquier puerto que esté escuchando en la dirección predeterminada "0.0.0.0" dentro 
+        # de un contenedor será accesible desde la red. Modificar esta matriz con un parche de combinación 
+        # estratégico puede dañar los datos.
+        ports:
+        - containerPort: 80
+        # Recursos requeridos por este contenedor. No se puede actualizar.
+        resources:
+          # "Limits" describe la cantidad máxima de recursos informáticos permitidos.
+          limits:
+              memory: "200Mi"
+              cpu: "500m"
+          # "Requests" describe la cantidad mínima de recursos informáticos requeridos. Si las "Requests"
+          # se omiten para un contenedor, por defecto es igual a los "Limits" si estos se especifican explícitamente,
+          # de lo contrario, a un valor definido por la implementación. Las "Requests" no pueden exceder los "Limits".
+          requests:
+              memory: "100Mi"
+              cpu: "0.5"
+

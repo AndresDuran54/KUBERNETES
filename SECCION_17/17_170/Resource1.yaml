@@ -1,0 +1,13 @@
+apiVersion: v1
+# ResourceQuota establece restricciones de cuota agregadas aplicadas por namespace.
+kind: ResourceQuota
+metadata:
+  name: pods-grandes
+spec:
+  # "Hard" es el conjunto de límites duros deseados para cada recurso nombrado.
+  hard:
+    request.cpu: "10"
+    request.memory: "500Mi"
+    limits.cpu: "5"
+    limits.memory: "1Gi"
+    pods: "5"

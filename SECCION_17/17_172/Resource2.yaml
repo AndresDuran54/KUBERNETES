@@ -1,0 +1,60 @@
+apiVersion: v1
+# ResourceQuota establece restricciones de cuota agregadas aplicadas por namespace.
+kind: ResourceQuota
+# ObjectMeta es metadatos que todos los recursos persistentes deben tener, lo que incluye todos
+# los objetos que los usuarios deben crear.
+metadata:
+  # El nombre debe ser único dentro de un espacio de nombres. Es requerido al crear recursos,
+  # aunque algunos recursos pueden permitir que un cliente solicite la generación de un nombre
+  # apropiado automáticamente. El nombre está destinado principalmente para la idempotencia de
+  # la creación y la definición de configuración. No puede ser actualizado.
+  name: pods-grandes
+# ResourceQuotaSpec define los límites duros deseados para hacer cumplir la cuota.
+spec:
+  # "hard" es el conjunto de límites duros deseados para cada recurso nombrado.
+  hard:
+    # A través de todos los pods en un estado no terminal, la suma de las solicitudes de CPU no puede exceder este valor.
+    requests.cpu: "100"
+    # A través de todos los pods en un estado no terminal, la suma de las solicitudes de memoria no puede exceder este valor.
+    requests.memory: 500Mi
+    # A través de todos los pods en un estado no terminal, la suma de los límites de CPU no puede exceder este valor.
+    limits.cpu: "500"
+    # A través de todos los pods en un estado no terminal, la suma de los límites de memoria no puede exceder este valor.
+    limits.memory: 1Gi
+    # El número total de pods que pueden existir en el namespace en un estado no terminal. Un pod está en
+    # un estado terminal si `.status.phase` es verdadero para (Failed, Succeeded).
+    pods: "5"
+  # El campo scopeSelector en un ResourceQuota se utiliza para definir el alcance de los recursos que
+  # el objeto ResourceQuota debe aplicar. Esto se utiliza para especificar qué recursos específicos
+  #  en el namespace se deben contabilizar para cumplir con los límites definidos en el ResourceQuota.
+  scopeSelector:
+    # Un selector de alcance representa el AND de los selectores representados por los requisitos
+    # del selector de recursos con alcance.
+    matchExpressions:
+    # Representa la relación de un ámbito con un conjunto de valores. Los operadores válidos son
+    # In, NotIn, Exists, DoesNotExist.
+    - operator : In
+    # El nombre del ámbito al que se aplica el selector. Tiene como posibles valores:
+      scopeName: PriorityClass
+    # Una matriz de valores de cadena. Si el operador es In o NotIn, la matriz de valores debe ser
+    # no vacía. Si el operador es Exists o DoesNotExist, la matriz de valores debe estar vacía. 
+    # Esta matriz se reemplaza durante un parche de fusión estratégica.
+      values: ["produccion"]
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: pods-peques
+spec:
+  hard:
+    requests.cpu: "50"
+    requests.memory: 100Mi
+    limits.cpu: "100"
+    limits.memory: 200Mi
+    pods: "10"
+  scopeSelector:
+    matchExpressions:
+    - operator : In
+      scopeName: PriorityClass
+      values: ["desarrollo"]
+

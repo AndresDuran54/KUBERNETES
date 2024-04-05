@@ -1,0 +1,33 @@
+apiVersion: apps/v1 # i se Usa apps/v1beta2 para versiones anteriores a 1.9.0
+kind: Deployment
+metadata:
+  name: apache-prod
+  labels:
+    estado: "1"
+spec:
+  selector:   #permite seleccionar un conjunto de objetos que cumplan las condicione
+    matchLabels:
+      app: apache
+  replicas: 5  # indica al controlador que ejecute 2 pods
+  template:   # Plantilla que define los containers
+    metadata:
+      labels:
+        app: apache
+    spec:
+      # Si se especifica, indica la prioridad del pod. "system-node-critical" y "system-cluster-critical"
+      # son dos palabras clave especiales que indican las prioridades más altas, siendo la primera la más
+      # alta. Cualquier otro nombre debe ser definido creando un objeto PriorityClass con ese nombre.
+      # Si no se especifica, la prioridad del pod será predeterminada o cero si no hay una predeterminada.
+      priorityClassName: "produccion"
+      containers:
+      - name: apache
+        image: httpd 
+        ports:
+        - containerPort: 80
+        resources:
+          limits:
+              memory: "400Mi"
+              cpu: "1"
+          requests:
+              memory: "256Mi" 
+              cpu: "0.5"

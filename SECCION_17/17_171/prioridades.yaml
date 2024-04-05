@@ -1,0 +1,32 @@
+# Especifica la versión del recurso. En este caso, es "scheduling.k8s.io/v1", 
+# que es la versión para las clases de prioridad.
+apiVersion: scheduling.k8s.io/v1
+# PriorityClass define la asignación de un nombre de clase de prioridad a un valor entero de prioridad.
+# El valor puede ser cualquier entero válido.
+kind: PriorityClass
+metadata:
+  name: produccion
+# Representa el valor entero de esta clase de prioridad. Esta es la prioridad real que reciben los pods
+# cuando tienen el nombre de esta clase en su especificación de pod.
+value: 100
+# Es la política para la prelación de pods con prioridad más baja. Uno de los siguientes: Never,
+# PreemptLowerPriority. Por defecto es PreemptLowerPriority si no se establece.
+preemptionPolicy: PreemptLowerPriority
+# globalDefault especifica si esta PriorityClass debe considerarse como la prioridad predeterminada
+# para los pods que no tienen ninguna clase de prioridad. Solo se puede marcar una PriorityClass
+# como globalDefault. Sin embargo, si existen más de una PriorityClasses con su campo globalDefault
+# establecido en true, se usará el valor más pequeño de esas PriorityClasses predeterminadas globales
+# como la prioridad predeterminada.
+globalDefault: false
+description: "Pods para entornos de Producción."
+
+---
+
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: desarrollo
+value: 50
+preemptionPolicy: PreemptLowerPriority
+globalDefault: false
+description: "Pods para entornos de desarrollo."

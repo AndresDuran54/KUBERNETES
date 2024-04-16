@@ -1,0 +1,36 @@
+apiVersion: v1
+# PersistentVolume (PV) es un recurso de almacenamiento proporcionado
+# por un administrador. Es análogo a un nodo.
+kind: PersistentVolume
+# Metadatos del objeto estándar
+metadata:
+  # Una cadena que identifica de forma única este objeto dentro del espacio de nombres actuaL. 
+  # Este valor se utiliza en la ruta al recuperar un objeto individual.
+  name: nfs-pv
+# Define una especificación de un volumen persistente propiedad del clúster. 
+# Proporcionado por un administrador
+spec:
+  # Descripción de los recursos y la capacidad del volumen persistente.
+  capacity:
+    # Tamaño del volumen persistente
+    storage: 5Gi
+  # Contiene todas las formas en que se puede montar el volumen.
+  accessModes:
+    - ReadWriteMany
+  # Define lo que sucede con un volumen persistente cuando se libera de su reclamo. Las opciones
+  # válidas son Retener (predeterminada para PersistentVolumes creados manualmente), Eliminar (predeterminada
+  # para PersistentVolumes aprovisionados dinámicamente) y Reciclar (en desuso). El reciclaje debe ser
+  # compatible con el complemento de volumen subyacente a este PersistentVolume
+  persistentVolumeReclaimPolicy: Recycle
+  # El nombre de StorageClass a la que pertenece este volumen persistente. El valor vacío significa que
+  # este volumen no pertenece a ninguna StorageClass.
+  storageClassName: volumen-nfs
+  # Representa un montaje NFS en el host. Proporcionado por un administrador.
+  nfs:
+    # Ruta que exporta el servidor NFS.
+    path: /var/datos
+    # Nombre de host o la dirección IP del servidor NFS.
+    server: 192.168.174.131
+    # Aquí forzará que la exportación NFS se monte con permisos de solo lectura. El valor predeterminado
+    # es falso.
+    readOnly: false

@@ -1,0 +1,24 @@
+apiVersion: v1
+# PersistentVolumeClaim es la solicitud y el reclamo de un usuario sobre un volumen persistente.
+kind: PersistentVolumeClaim
+# Metadatos del objeto estándar
+metadata:
+  # Una cadena que identifica de forma única este objeto dentro del espacio de nombres actuaL. 
+  # Este valor se utiliza en la ruta al recuperar un objeto individual.
+  name: nfs-pvc
+# La especificación define las características deseadas de un volumen solicitado por un autor de pod.
+spec:
+  # StorageClassName es el nombre de la StorageClass requerida por el reclamo.
+  storageClassName: volumen-nfs
+  # Contiene los modos de acceso deseados que el volumen debe tener.
+  accessModes:
+    - ReadWriteMany
+  # Representa los recursos mínimos que debe tener el volumen. Si la función RecoverVolumeExpansionFailure
+  # está habilitada, los usuarios pueden especificar requisitos de recursos que son inferiores al valor
+  # anterior, pero aún deben ser superiores a la capacidad registrada en el campo de estado del reclamo.
+  resources:
+    # Describe la cantidad mínima de recursos informáticos necesarios. Si se omiten request para un contenedor,
+    # el valor predeterminado es Límites si se especifica explícitamente; de ​​lo contrario, a un valor
+    # definido por la implementación. Las solicitudes no pueden exceder los límites
+    requests:
+      storage: 1Gi

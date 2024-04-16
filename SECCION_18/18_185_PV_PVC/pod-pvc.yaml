@@ -1,0 +1,55 @@
+apiVersion: v1
+# Pod es una colección de contenedores que se pueden ejecutar en un host. Este recurso lo crean
+# los clientes y lo programan en los hosts.
+kind: Pod
+# Metadatos del objeto estándar
+metadata:
+  # Una cadena que identifica de forma única este objeto dentro del espacio de nombres actuaL. 
+  # Este valor se utiliza en la ruta al recuperar un objeto individual.
+  name: pv-pod
+# Especificación del comportamiento deseado del pod.
+spec:
+  # Lista de volúmenes que pueden montar los contenedores pertenecientes al pod.
+  volumes:
+    # Nombre del volumen. Debe ser DNS_LABEL y único dentro del pod.
+    - name: pv-storage
+    # Representa una referencia a un PersistentVolumeClaim en el mismo espacio de nombres.
+      persistentVolumeClaim:
+        # Nombre de PersistentVolumeClaim en el mismo espacio de nombres que el pod que 
+        # utiliza este volumen.
+        claimName: pv-claim
+        # Forzará la configuración de Solo lectura en VolumeMounts. Por defecto es falso.
+        readOnly: false
+  # Lista de contenedores pertenecientes al pod. Actualmente no se pueden agregar ni eliminar contenedores. 
+  # Debe haber al menos un contenedor en un Pod. No se puede actualizar.
+  containers:
+    # Nombre del contenedor especificado como DNS_LABEL. Cada contenedor de un pod 
+    # debe tener un nombre único (DNS_LABEL). No se puede actualizar.
+    - name: task-pv-container
+    # Recursos requeridos por este contenedor. No se puede actualizar.
+      resources:
+        # Limits describe la cantidad máxima de recursos informáticos permitidos.
+        limits:
+          cpu: 1
+          memory: "100Mi"
+      # Nombre de la imagen del contenedor.
+      image: nginx
+      # Lista de puertos a exponer desde el contenedor. No especificar un puerto aquí NO evita que ese
+      # puerto quede expuesto. Cualquier puerto que esté escuchando en la dirección predeterminada "0.0.0.0"
+      # dentro de un contenedor será accesible desde la red. Modificar esta matriz con un parche de 
+      # combinación estratégico puede dañar los datos.
+      ports:
+        # Número de puerto a exponer en la dirección IP del pod. Debe ser un número de puerto válido,
+        # 0 < x < 65536.
+        - containerPort: 80
+        # Si se especifica, debe ser IANA_SVC_NAME y único dentro del pod. Cada puerto con nombre en un pod
+        # debe tener un nombre único. Nombre del puerto al que pueden hacer referencia los servicios.
+          name: "http-server"
+      # Volúmenes de pod para montar en el sistema de archivos del contenedor. No se puede actualizar.
+      volumeMounts:
+        # Ruta dentro del contenedor en la que se debe montar el volumen. No debe contener ':'.
+        - mountPath: "/var/www/html/"
+        # Debe coincidir con el nombre de un volumen.
+          name: pv-storage
+      
+      

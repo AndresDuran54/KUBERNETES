@@ -1,0 +1,40 @@
+apiVersion: v1
+# Pod es una colección de contenedores que se pueden ejecutar en un host. Este recurso lo crean
+# los clientes y lo programan en los hosts.
+kind: Pod
+# Metadatos del objeto estándar
+metadata:
+  # Una cadena que identifica de forma única este objeto dentro del espacio de nombres actuaL.
+  # Este valor se utiliza en la ruta al recuperar un objeto individual.
+  name: pod-nfs
+# Especificación del comportamiento deseado del pod.
+spec:
+  # Lista de contenedores pertenecientes al pod. Actualmente no se pueden agregar ni eliminar contenedores. 
+  # Debe haber al menos un contenedor en un Pod. No se puede actualizar.
+  containers:
+    # Nombre del contenedor especificado como DNS_LABEL. Cada contenedor de un pod 
+    # debe tener un nombre único (DNS_LABEL). No se puede actualizar.
+  - name: nginx
+    # Nombre de la imagen del contenedor.
+    image: nginx
+    # Volúmenes de pod para montar en el sistema de archivos del contenedor. No se puede actualizar.
+    volumeMounts:
+      # Ruta dentro del contenedor en la que se debe montar el volumen. No debe contener ':'.
+      - mountPath: /var/www/html
+      # Debe coincidir con el nombre de un volumen.
+        name: nfs-vol
+    # Recursos requeridos por este contenedor. No se puede actualizar.
+    resources:
+      # Limits describe la cantidad máxima de recursos informáticos permitidos.
+      limits:
+        cpu: 1
+        memory: "100Mi"
+  # Lista de volúmenes que pueden montar los contenedores pertenecientes al pod.
+  volumes:
+    # Nombre del volumen. Debe ser DNS_LABEL y único dentro del pod.
+    - name: nfs-vol
+    # Representa una referencia a un PersistentVolumeClaim en el mismo espacio de nombres.
+      persistentVolumeClaim:
+    # Nombre de PersistentVolumeClaim en el mismo espacio de nombres que el pod que 
+    # utiliza este volumen.
+        claimName: nfs-pvc

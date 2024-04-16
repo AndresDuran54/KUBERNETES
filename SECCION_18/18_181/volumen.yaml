@@ -1,0 +1,54 @@
+apiVersion: v1
+# Pod es una colección de contenedores que se pueden ejecutar en un host. Este recurso lo crean
+# los clientes y lo programan en los hosts.
+kind: Pod
+# Metadatos del objeto estándar
+metadata:
+  # Una cadena que identifica de forma única este objeto dentro del espacio de nombres actuaL. 
+  # Este valor se utiliza en la ruta al recuperar un objeto individual.
+  name: volumenes3
+# Especificación del comportamiento deseado del pod.
+spec:
+  # Lista de contenedores pertenecientes al pod. Actualmente no se pueden agregar ni eliminar contenedores. 
+  # Debe haber al menos un contenedor en un Pod. No se puede actualizar.
+  containers:
+    # Nombre del contenedor especificado como DNS_LABEL. Cada contenedor de un pod 
+    # debe tener un nombre único (DNS_LABEL). No se puede actualizar.
+  - name: nginx
+    # Nombre de la imagen del contenedor.
+    image: nginx
+    # Volúmenes de pod para montar en el sistema de archivos del contenedor. No se puede actualizar.
+    volumeMounts:
+    # Ruta dentro del contenedor en la que se debe montar el volumen. No debe contener ':'.
+    - mountPath: /home
+    # Debe coincidir con el nombre de un volumen.
+      name: home
+    # Ruta dentro del contenedor en la que se debe montar el volumen. No debe contener ':'.
+    - mountPath: /temp
+    # Debe coincidir con el nombre de un volumen.
+      name: temp
+    # Recursos requeridos por este contenedor. No se puede actualizar.
+    resources:
+      # Limits describe la cantidad máxima de recursos informáticos permitidos.
+      limits:
+        memory: "128Mi"
+        cpu: "1"
+      # Requests describe la cantidad mínima de recursos informáticos requeridos. Si se omite Requests
+      # para un contenedor, por defecto es igual a Limits si se especifica explícitamente, de lo 
+      # contrario es igual a un valor definido por la implementación. Requests no puede exceder a Limits.
+      requests:
+        memory: "128Mi"
+        cpu: "0.5"
+  # Lista de volúmenes que pueden montar los contenedores pertenecientes al pod.
+  volumes:
+  # Nombre del volumen. Debe ser DNS_LABEL y único dentro del pod.
+  - name: home
+  # Representa un archivo o directorio preexistente en la máquina host que está expuesto directamente al
+  # contenedor. Esto generalmente se usa para agentes del sistema u otras cosas privilegiadas a las que se
+  # les permite ver la máquina host. La mayoría de los contenedores NO necesitarán esto.
+    hostPath:
+      path: /home/kubernetes/datos
+  # Nombre del volumen. Debe ser DNS_LABEL y único dentro del pod.
+  - name: temp
+  # Representa un directorio temporal que comparte la vida útil de un pod.
+    emptyDir: {}

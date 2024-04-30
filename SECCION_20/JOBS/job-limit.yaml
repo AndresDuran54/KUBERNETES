@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+# El trabajo representa la configuración de un solo trabajo.
+kind: Job
+# ObjectMeta son metadatos que todos los recursos persistentes deben tener, 
+# que incluyen todos los objetos que los usuarios deben crear.
+metadata:
+  # El nombre debe ser único dentro de un espacio de nombres. Es necesario al crear recursos, 
+  # aunque algunos recursos pueden permitir que un cliente solicite la generación de un nombre
+  # apropiado automáticamente. El nombre está destinado principalmente a la creación de 
+  # idempotencia y definición de configuración. No se puede actualizar
+  name: job4
+# JobSpec describe cómo se verá la ejecución del trabajo.
+spec:
+  # Especifica el número de reintentos antes de marcar este trabajo como fallido. Por defecto es 6
+  backoffLimit: 2
+  # Especifica la duración en segundos relativa a la hora de inicio que el trabajo puede estar continuamente
+  # activo antes de que el sistema intente finalizarlo; El valor debe ser un número entero positivo. Si se 
+  # suspende un trabajo (durante la creación o mediante una actualización), este temporizador se detendrá
+  # y restablecerá efectivamente cuando el trabajo se reanude nuevamente.
+  activeDeadlineSeconds: 15
+  # Especifica la cantidad deseada de pods finalizados exitosamente con los que se debe ejecutar
+  # el trabajo. Establecerlo en nulo significa que el éxito de cualquier pod indica el éxito de
+  # todos los pods y permite que el paralelismo tenga cualquier valor positivo. Establecer en 1
+  # significa que el paralelismo se limita a 1 y el éxito de ese módulo indica el éxito del trabajo.
+  completions: 3
+  # Especifica el número máximo deseado de pods que el trabajo debe ejecutar en un momento dado.
+  # La cantidad real de pods que se ejecutan en estado estable será menor que esta cantidad cuando
+  # ((.spec.completions - .status.successful) < .spec.parallelism), es decir, cuando el trabajo que
+  # queda por hacer es menor que el paralelismo máximo.
+  parallelism: 2
+  # Describe el pod que se creará al ejecutar un trabajo. Los únicos valores permitidos de 
+  # template.spec.restartPolicy son "Never" o "OnFailure".
+  template:
+    # Especificación del comportamiento deseado del pod.
+    spec:
+    # Lista de contenedores pertenecientes al pod. Actualmente no se pueden agregar ni 
+    # eliminar contenedores. Debe haber al menos un contenedor en un Pod. No se puede actualizar.
+      containers:
+        # Nombre del contenedor especificado como DNS_LABEL. Cada contenedor de un pod debe 
+        # tener un nombre único (DNS_LABEL). No se puede actualizar.
+      - name: job1
+        # Nombre de la imagen del contenedor.
+        image: alpine
+        command: ["sh","-c"]
+        args: ["cat/etc/puff.txt"]
+      # Politica reinicio
+      restartPolicy: Never

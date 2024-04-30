@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+# StatefulSet representa un conjunto de pods con identidades consistentes. Las identidades se definen como: 
+# Network: Un único DNS y nombre de host estables. 
+# Storage: Tantos VolumeClaims como se soliciten. 
+# StatefulSet garantiza que una identidad de red determinada siempre se asignará
+# a la misma identidad de almacenamiento.
+kind: StatefulSet
+# Metadatos del objeto estándar
+metadata:
+  # Una cadena que identifica de forma única este objeto dentro del espacio de nombres actuaL.
+  # Este valor se utiliza en la ruta al recuperar un objeto individual.
+  name: mongo
+# La especificación define las identidades deseadas de los pods en este conjunto.
+spec:
+  # El selector es una consulta de etiqueta sobre pods que debe coincidir con el recuento
+  # de réplicas. Debe coincidir con las etiquetas de la plantilla del pod.
+  selector:
+    # Es un mapa de pares {clave,valor}. Una sola {clave, valor} en el mapa matchLabels es equivalente
+    # a un elemento de matchExpressions, cuyo campo clave es "clave", el operador es "In" y la matriz
+    # de valores contiene solo "valor". Los requisitos están conectados con AND.
+    matchLabels:
+      app: db
+      name: mongodb
+  # Nombre del servicio que gobierna este StatefulSet. Este servicio debe existir antes del StatefulSet
+  # y es responsable de la identidad de red del conjunto. Los pods obtienen DNS/nombres de host que siguen
+  # el patrón: cadena-específica del pod.nombredeservicio.default.svc.cluster.local donde el controlador
+  # StatefulSet administra la "cadena-específica del pod".
+  serviceName: mongodb-svc
+  # Número deseado de réplicas de la plantilla dada. Estas son réplicas en el sentido de que son
+  # instancias de la misma Plantilla, pero las réplicas individuales también tienen una identidad
+  # consistente. Si no se especifica, el valor predeterminado es 1.
+  replicas: 3
+  # La plantilla es el objeto que describe el pod que se creará si se detectan réplicas insuficientes.
+  # Cada pod eliminado por StatefulSet cumplirá con esta plantilla, pero tendrá una identidad única
+  # del resto de StatefulSet. Cada pod recibirá un nombre con el formato <statefulsetname>-<podindex>.
+  # Por ejemplo, un pod en un StatefulSet llamado "web" con número de índice "3" se llamaría "web-3".
+  # El único valor permitido de template.spec.restartPolicy es "Siempre".
+  template:
+    # Metadatos del objeto estándar
+    metadata:
+      # Mapa de claves y valores de cadena que se pueden utilizar para organizar y categorizar
+      # (alcance y selección) objetos. Puede coincidir con selectores de controladores de replicación
+      # y servicios.
+      labels:
+        app: db
+        name: mongodb
+    # Especificación del comportamiento deseado del pod.
+    spec:
+      # Duración opcional en segundos que el pod necesita para finalizar correctamente.
+      # Puede reducirse en la solicitud de eliminación. El valor debe ser un número entero no negativo.
+      # El valor cero indica parada inmediata mediante la señal de apagado (no hay oportunidad de apagar).
+      # Si este valor es nulo, se utilizará el período de gracia predeterminado. El período de gracia es la
+      # duración en segundos después de que los procesos que se ejecutan en el pod reciben una señal de
+      # finalización y el momento en que los procesos se detienen por la fuerza con una señal de finalización.
+      # Establezca este valor por más tiempo que el tiempo de limpieza esperado para su proceso. El valor 
+      # predeterminado es 30 segundos.
+      terminationGracePeriodSeconds: 10  
+      # Lista de contenedores pertenecientes al pod. Actualmente no se pueden agregar
+      # ni eliminar contenedores. Debe haber al menos un contenedor en un Pod. No se 
+      # puede actualizar.
+      containers:
+        # Nombre del contenedor especificado como DNS_LABEL. Cada contenedor de un pod debe tener
+        # un nombre único (DNS_LABEL). No se puede actualizar.
+      - name: mongo
+        # Nombre de la imagen del contenedor.
+        image: mongo:3.6
+        # Matriz de puntos de entrada. No ejecutado dentro de un shell. El PUNTO DE ENTRADA de la imagen
+        # del contenedor se utiliza si no se proporciona. Las referencias variables $(VAR_NAME) se expanden
+        # utilizando el entorno del contenedor. Si una variable no se puede resolver, la referencia en la
+        # cadena de entrada no se modificará. Los $$ dobles se reducen a un solo $, lo que permite escapar
+        # de la sintaxis $(VAR_NAME): es decir, "$$(VAR_NAME)" producirá la cadena literal "$(VAR_NAME)".
+        # Las referencias escapadas nunca se expandirán, independientemente de si la variable existe o no.
+        # No se puede actualizar.    
+        command: 
+          - mongod
+        # Argumentos al punto de entrada. El CMD de la imagen del contenedor se utiliza si no se proporciona.
+        # Las referencias variables $(VAR_NAME) se expanden utilizando el entorno del contenedor.
+        # Si una variable no se puede resolver, la referencia en la cadena de entrada no se modificará.
+        # Los $$ dobles se reducen a un solo $, lo que permite escapar de la sintaxis $(VAR_NAME): es decir,
+        # "$$(VAR_NAME)" producirá la cadena literal "$(VAR_NAME)". Las referencias escapadas nunca se
+        # expandirán, independientemente de si la variable existe o no. No se puede actualizar.
+        args: 
+          - --bind_ip=0.0.0.0
+          - --replSet=rs0 #Nombre del replica set. Todos los miembros dle cluster usan este nombre
+          - --dbpath=/data/db      
+        livenessProbe:
+            exec:
+              command:
+                - mongo
+                - --eval
+                - "db.adminCommand('ping')"
+        # Lista de puertos a exponer desde el contenedor. No especificar un puerto aquí NO evita que ese puerto
+        # quede expuesto. Cualquier puerto que esté escuchando en la dirección predeterminada "0.0.0.0" dentro 
+        # de un contenedor será accesible desde la red. Modificar esta matriz con un parche de combinación 
+        # estratégico puede dañar los datos.     
+        ports:
+        - containerPort: 27017
+        # Volúmenes de pod para montar en el sistema de archivos del contenedor. No se puede actualizar.
+        volumeMounts:
+        # Debe coincidir con el nombre de un volumen.
+        - name: mongo-storage
+        # Ruta dentro del contenedor en la que se debe montar el volumen. No debe contener ':'.
+          mountPath: /data/db    
+  # Es una lista de volumeClaim a las que los pods pueden hacer referencia. El controlador StatefulSet
+  # es responsable de asignar identidades de red a notificaciones de manera que se mantenga la identidad
+  # de un pod. Cada reclamo en esta lista debe tener al menos un volumeMount coincidente (por nombre)
+  # en un contenedor de la plantilla. Un reclamo en esta lista tiene prioridad sobre cualquier volumen
+  # en la plantilla, con el mismo nombre.
+  volumeClaimTemplates:
+    - metadata:
+        name: mongo-storage      
+      spec:
+        # StorageClassName es el nombre de la StorageClass requerida por el reclamo.
+        storageClassName: estado
+        # Modos de acceso deseados que el volumen debe tener
+        accessModes: ["ReadWriteOnce"]
+        # Resources representa los recursos mínimos que debe tener el volumen. Si la función
+        # RecoverVolumeExpansionFailure está habilitada, los usuarios pueden especificar requisitos
+        # de recursos que son inferiores al valor anterior, pero aún deben ser superiores a la 
+        # capacidad registrada en el campo de estado del reclamo.
+        resources:
+        # Describe la cantidad mínima de recursos informáticos necesarios. Si se omite para un contenedor,
+        # el valor predeterminado es Límites si se especifica explícitamente; de ​​lo contrario, es un valor
+        # definido por la implementación. Las solicitudes no pueden exceder los límites
+          requests:
+            storage: 1Gi

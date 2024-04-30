@@ -1,0 +1,24 @@
+apiVersion: storage.k8s.io/v1
+# Describe los parámetros de una clase de almacenamiento para la cual PersistentVolumes se puede aprovisionar
+# dinámicamente. Las StorageClasses no tienen espacios de nombres; el nombre de la clase de almacenamiento
+# según etcd está en ObjectMeta.Name.
+kind: StorageClass
+# Metadatos del objeto estándar
+metadata:
+  # Las anotaciones son un mapa de valores clave no estructurado almacenado con un recurso que puede ser configurado
+  # por herramientas externas para almacenar y recuperar metadatos arbitrarios. No se pueden consultar y deben 
+  # conservarse al modificar objetos.
+  annotations:
+    description: Esto es un ejemplo de Storage Class
+  # El nombre debe ser único dentro de un espacio de nombres. Es necesario al crear recursos, aunque algunos recursos
+  # pueden permitir que un cliente solicite la generación de un nombre apropiado automáticamente. El nombre está 
+  # destinado principalmente a la creación de idempotencia y definición de configuración. No se puede actualizar.
+  name: bbdd
+# Indica el tipo de aprovisionador.
+provisioner: kubernetes.io/no-provisioner
+# Define lo que sucede con un volumen persistente cuando se libera de su reclamo. Las opciones
+# válidas son Retener (predeterminada para PersistentVolumes creados manualmente), Eliminar (predeterminada
+# para PersistentVolumes aprovisionados dinámicamente) y Reciclar (en desuso). El reciclaje debe ser
+# compatible con el complemento de volumen subyacente a este PersistentVolume
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer

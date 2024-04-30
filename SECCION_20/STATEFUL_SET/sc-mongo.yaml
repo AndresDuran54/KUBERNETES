@@ -1,0 +1,16 @@
+apiVersion: storage.k8s.io/v1
+# StorageClass describe los parámetros de una clase de almacenamiento para la 
+# cual PersistentVolumes se puede aprovisionar dinámicamente.
+# Las StorageClasses no tienen espacios de nombres; el nombre de la clase de almacenamiento
+# según etcd está en ObjectMeta.Name.
+kind: StorageClass
+# Metadatos del objeto estándar
+metadata:
+  # Una cadena que identifica de forma única este objeto dentro del espacio de nombres actual.
+  # Este valor se utiliza en la ruta al recuperar un objeto individual.
+   name: estado
+# Tipo de aprovisionador
+provisioner: k8s.io/minikube-hostpath
+# Contiene los parámetros para el aprovisionador que debe crear volúmenes de esta clase de almacenamiento.
+parameters:
+   type: pd-ssd

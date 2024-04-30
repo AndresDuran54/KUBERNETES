@@ -1,0 +1,42 @@
+apiVersion: v1
+# El servicio es una abstracción con nombre de un servicio de software (por ejemplo, mysql) que consta
+# de un puerto local (por ejemplo, 3306) en el que escucha el proxy y el selector que determina qué pods
+# responderán a las solicitudes enviadas a través del proxy.
+kind: Service
+# Metadatos del objeto estándar
+metadata:
+  # Una cadena que identifica de forma única este objeto dentro del espacio de nombres actual.
+  # Este valor se utiliza en la ruta al recuperar un objeto individual.
+  name: mongodb-svc
+  # Mapa de claves y valores de cadena que se pueden utilizar para organizar y categorizar
+  # (alcance y selección) objetos. Puede coincidir con selectores de controladores de replicación
+  # y servicios.
+  labels:
+    app: db
+    name: mongodb
+# ServiceSpec describe los atributos que un usuario crea en un servicio.
+spec:
+  # La lista de puertos expuestos por este servicio.
+  ports:
+  # El puerto que será expuesto por este servicio.
+  - port: 27017
+  # En un archivo de configuración de un servicio de Kubernetes, cuando se establece `clusterIP: None`,
+  # significa que el servicio no tendrá una IP interna asignada dentro del clúster. En su lugar, el 
+  # servicio se expone directamente en la red externa. Este enfoque se utiliza comúnmente para exponer
+  # servicios que deben ser accesibles desde fuera del clúster, pero que no necesitan una IP interna
+  # asignada dentro del clúster. Por ejemplo, un servicio que expone una API REST a aplicaciones externas
+  # puede utilizar `clusterIP: None` para que la API esté disponible públicamente sin exponerla directamente
+  # en la red interna del clúster. Es importante tener en cuenta que cuando se utiliza `clusterIP: None`,
+  # el servicio aún puede tener un nombre DNS asignado dentro del clúster para que las aplicaciones 
+  # internas puedan resolverlo. Sin embargo, no se asignará una IP interna al servicio y no se podrá
+  # acceder a través de la red interna del clúster.
+  clusterIP: None 
+  # Enrute el tráfico del servicio a pods con claves de etiqueta y valores que coincidan con este selector.
+  # Si está vacío o no está presente, se supone que el servicio tiene un proceso externo que administra
+  # sus puntos finales, que Kubernetes no modificará. Solo se aplica a los tipos ClusterIP, NodePort
+  # y LoadBalancer. Se ignora si el tipo es ExternalName.
+  selector:
+    app: db
+    name: mongodb 
+
+

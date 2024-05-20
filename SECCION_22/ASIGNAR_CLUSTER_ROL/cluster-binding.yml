@@ -1,0 +1,35 @@
+apiVersion: rbac.authorization.k8s.io/v1
+# ClusterRoleBinding hace referencia a un ClusterRole, pero no lo contiene. 
+# Puede hacer referencia a un ClusterRole en el namespace global y
+# agrega información de quién a través del Subject.
+kind: ClusterRoleBinding
+# ObjectMeta son metadatos que todos los recursos persistentes deben tener, 
+# que incluyen todos los objetos que los usuarios deben crear.
+metadata:
+  # El nombre debe ser único dentro de un espacio de nombres. Es necesario al crear recursos, aunque algunos 
+  # recursos pueden permitir que un cliente solicite la generación de un nombre apropiado automáticamente. 
+  # El nombre está destinado principalmente a la creación de idempotencia y definición de configuración.
+  # No se puede actualizar.
+  name: cluster-role-ejemplo
+# Subjects contienen referencias a los objetos a los que se aplica el rol. El Subjects contiene una
+# referencia al objeto o a las identidades de usuario a las que se aplica un enlace de rol. Esto puede 
+# contener una referencia directa a un objeto API o un valor para objetos que no son objetos, como namespaces o Groups.
+subjects:
+# Tipo de objeto al que se hace referencia. Los valores definidos por este grupo de API son "User", "Group"
+# y "Service Account". Si el Autorizador no reconoce el valor de tipo, el Autorizador debe informar un error.
+- kind: User
+# Nombre del objeto al que se hace referencia.
+  name: minikube
+  # APIGroup contiene el grupo API del tema al que se hace referencia. El valor predeterminado es "" para los sujetos de 
+  # ServiceAccount. El valor predeterminado es "rbac.authorization.k8s.io" para sujetos de usuario y grupo.
+  apiGroup: rbac.authorization.k8s.io
+# RoleRef solo puede hacer referencia a un ClusterRole en el espacio de nombres global. Si RoleRef no se puede
+# resolver, el Autorizador debe devolver un error. Este campo es inmutable. RoleRef contiene información que 
+# apunta al rol que se está utilizando.
+roleRef:
+  # Tipo es el tipo de recurso al que se hace referencia.
+  kind: ClusterRole
+  # Nombre es el nombre del recurso al que se hace referencia.
+  name: desarrollo
+  # APIGroup es el grupo del recurso al que se hace referencia.
+  apiGroup: rbac.authorization.k8s.io

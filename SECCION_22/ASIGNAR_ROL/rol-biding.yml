@@ -1,0 +1,18 @@
+apiVersion: rbac.authorization.k8s.io/v1
+# RoleBinding hace referencia a un rol, pero no lo contiene. Puede hacer referencia a un rol 
+# en el mismo espacio de nombres o a un ClusterRole en el espacio de nombres global. Agrega
+# información de quién a través de Subjects e información del espacio de nombres según
+# en qué espacio de nombres existe. Los enlaces de roles en un espacio de nombres determinado
+# solo tienen efecto en ese espacio de nombres.
+kind: RoleBinding
+metadata:
+   name: role-operador
+   namespace: ventas
+subjects:
+- kind: User
+  name: desa1 
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role 
+  name: operador 
+  apiGroup: rbac.authorization.k8s.io

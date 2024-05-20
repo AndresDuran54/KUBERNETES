@@ -1,0 +1,30 @@
+apiVersion: rbac.authorization.k8s.io/v1
+# Rol es una agrupación lógica de PolicyRules y con namespace a la que
+# se puede hacer referencia como una unidad mediante un RoleBinding.
+kind: Role
+# ObjectMeta son metadatos que todos los recursos persistentes deben tener, que 
+# incluyen todos los objetos que los usuarios deben crear.
+metadata:
+  # El namespace define el espacio dentro del cual cada nombre debe ser único. Un namespace
+  # vacío es equivalente al namespace "default", pero "default" es la representación canónica.
+  # No es necesario que todos los objetos tengan como ámbito un namespace; el valor de este
+  # campo para esos objetos estará vacío.
+  namespace: ventas
+  # El nombre debe ser único dentro de un espacio de nombres. Es necesario al crear recursos,
+  # aunque algunos recursos pueden permitir que un cliente solicite la generación de un nombre 
+  # apropiado automáticamente. El nombre está destinado principalmente a la creación de idempotencia
+  # y definición de configuración. No se puede actualizar.
+  name: operador
+# Rules contiene todas las PolicyRules para este rol.
+# PolicyRule contiene información que describe una regla de política, pero no contiene información
+# sobre a quién se aplica la regla o a qué espacio de nombres se aplica.
+rules:
+# APIGroups es el nombre del APIGroup que contiene los recursos. Si se especifican varios grupos de API,
+# se permitirá cualquier acción solicitada contra uno de los recursos enumerados en cualquier grupo de API.
+# "" representa el grupo de API principal y "*" representa todos los grupos de API.
+- apiGroups: [""]
+# Recursos es una lista de recursos a los que se aplica esta regla. '*' representa todos los recursos.
+  resources: ["pods"]
+# Verbos es una lista de verbos que se aplican a TODOS los tipos de recursos contenidos en esta regla. 
+# '*' representa todos los verbos.
+  verbs: ["get", "watch", "list"]

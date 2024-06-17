@@ -36,6 +36,77 @@ Bootstrapping es el proceso de crear un nuevo clúster de Kubernetes desde cero 
 
     En resumen, Calico es una solución robusta y flexible para la red y la seguridad en entornos de Kubernetes, que ofrece un rendimiento excepcional, capacidades avanzadas de seguridad y una integración perfecta con el ecosistema de Kubernetes.
 
+    ## 1. Desahabilitar las áreas de intercambio de mi sistema
+
+    #### 1.1 Comando para listar todas las áreas de intercambio del sistema listadas en /proc/swaps
+    ```sh
+    swapon -s
+    ```
+
+    #### 1.2 Comando para deshabilitar todas las áreas de intercambio listadas en /proc/swaps
+    ```sh
+    sudo swapoff -a
+    ```
+
+    #### 1.3 Deshabilitamos del sistema las áreas de intercambio, para que no se vuelvan a arrancar al iniciar el servidor
+
+    Para eso vamos al 
+    ```sh
+      # /etc/fstab: static file system information.
+      #
+      # Use 'blkid' to print the universally unique identifier for a
+      # device; this may be used with UUID= as a more robust way to name devices
+      # that works even if disks are added and removed. See fstab(5).
+      #
+      # <file system> <mount point>   <type>  <options>       <dump>  <pass>
+      # / was on /dev/nvme0n1p5 during installation
+      UUID=f1dd64ac-57de-44c6-9095-d69007e1567b /               ext4    errors=remount-ro 0       1
+      # /boot/efi was on /dev/nvme0n1p1 during installation
+      UUID=6CA4-28DB  /boot/efi       vfat    umask=0077      0       1
+
+      # COMENTAMOS ESTA LINEA QUE INDICA QUE SE DEBE DE MONTAR ESTE AREA DE INTERCAMBIO AL ARRANCAR
+      # /swapfile                                 none            swap    sw              0       0
+    ```
+
+    ## 2. Instalamos Kubectl, kubeadm y kubelet
+
+    #### 2.1 Actualice el índice del paquete apt e instale los paquetes necesarios para usar el repositorio apt de Kubernetes:
+
+    ```sh
+    sudo apt-get update
+    # apt-transport-https may be a dummy package; if so, you can skip that package
+    sudo apt-get install -y apt-transport-https ca-certificates curl gpg
+    ```
+
+    #### 2.2 Descargue la clave de firma pública para los repositorios de paquetes de Kubernetes. Se utiliza la misma clave de firma para todos los repositorios, por lo que puede ignorar la versión en la URL:
+
+    ```sh
+    # If the directory `/etc/apt/keyrings` does not exist, it should be created before the curl command, read  the note below.
+    # sudo mkdir -p -m 755 /etc/apt/keyrings  
+    curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    ```
+
+    #### 2.3 Agregue el repositorio apto de Kubernetes apropiado. Tenga en cuenta que este repositorio tiene paquetes solo para Kubernetes 1.30; para otras versiones menores de Kubernetes, debe cambiar la versión menor de Kubernetes en la URL para que coincida con la versión menor deseada (también debe verificar que esté leyendo la documentación de la versión de Kubernetes que planea instalar).
+
+    ```sh
+    # This overwrites any existing configuration in /etc/apt/sources.list.d/kubernetes.list
+    echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /' | sudo tee /etc/apt/sources.list.d/kubernetes.list
+    ```
+
+    #### 2.4 Actualice el índice del paquete apt, instale kubelet, kubeadm y kubectl y fije su versión:
+
+    ```sh
+    sudo apt-get update
+    sudo apt-get install -y kubelet kubeadm kubectl
+    sudo apt-mark hold kubelet kubeadm kubectl
+    ```
+
+    #### 2.5 (Opcional) Habilite el servicio kubelet antes de ejecutar kubeadm:
+
+    ```sh
+    sudo systemctl enable --now kubelet
+    ```
+
     ### 1. Iniciamos un clúster de Kubernetes en un nodo maestro (Plano de control)
 
     #### 1.1 Comando para levantar el cluster con el nodo maestro.
